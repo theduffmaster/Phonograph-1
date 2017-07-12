@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -28,6 +29,7 @@ import com.kabouzeid.gramophone.interfaces.CabHolder;
 import com.kabouzeid.gramophone.model.Song;
 import com.kabouzeid.gramophone.util.MusicUtil;
 import com.kabouzeid.gramophone.util.NavigationUtil;
+import com.kabouzeid.gramophone.views.TouchInterceptFrameLayout;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.util.ArrayList;
@@ -47,6 +49,8 @@ public class SongAdapter extends AbsMultiSelectAdapter<SongAdapter.ViewHolder, S
     protected boolean usePalette = false;
     protected boolean showSectionName = true;
 
+    public RecyclerView recyclerView;
+
     public SongAdapter(AppCompatActivity activity, ArrayList<Song> dataSet, @LayoutRes int itemLayoutRes, boolean usePalette, @Nullable CabHolder cabHolder) {
         this(activity, dataSet, itemLayoutRes, usePalette, cabHolder, true);
     }
@@ -59,6 +63,13 @@ public class SongAdapter extends AbsMultiSelectAdapter<SongAdapter.ViewHolder, S
         this.usePalette = usePalette;
         this.showSectionName = showSectionName;
         setHasStableIds(true);
+    }
+
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView rV) {
+        super.onAttachedToRecyclerView(rV);
+        recyclerView = rV;
     }
 
     public void swapDataSet(ArrayList<Song> dataSet) {
@@ -98,6 +109,9 @@ public class SongAdapter extends AbsMultiSelectAdapter<SongAdapter.ViewHolder, S
         boolean isChecked = isChecked(song);
         holder.itemView.setActivated(isChecked);
 
+        if (holder.itemView instanceof TouchInterceptFrameLayout)
+            ((TouchInterceptFrameLayout) holder.itemView).setListParent(recyclerView);
+
         if (holder.getAdapterPosition() == getItemCount() - 1) {
             if (holder.shortSeparator != null) {
                 holder.shortSeparator.setVisibility(View.GONE);
@@ -111,6 +125,7 @@ public class SongAdapter extends AbsMultiSelectAdapter<SongAdapter.ViewHolder, S
         if (holder.title != null) {
             holder.title.setText(getSongTitle(song));
         }
+
         if (holder.text != null) {
             holder.text.setText(getSongText(song));
         }

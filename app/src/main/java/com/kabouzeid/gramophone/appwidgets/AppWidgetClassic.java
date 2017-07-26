@@ -1,7 +1,6 @@
 package com.kabouzeid.gramophone.appwidgets;
 
 import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,13 +23,11 @@ import com.kabouzeid.gramophone.service.MusicService;
 import com.kabouzeid.gramophone.ui.activities.MainActivity;
 import com.kabouzeid.gramophone.util.Util;
 
-/**
- * @author Karim Abou Zeid (kabouzeid)
- */
 public class AppWidgetClassic extends BaseAppWidget {
     public static final String NAME = "app_widget_classic";
 
     private static AppWidgetClassic mInstance;
+    private Target<Bitmap> target; // for cancellation
 
     public static synchronized AppWidgetClassic getInstance() {
         if (mInstance == null) {
@@ -40,24 +37,10 @@ public class AppWidgetClassic extends BaseAppWidget {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onUpdate(final Context context, final AppWidgetManager appWidgetManager,
-                         final int[] appWidgetIds) {
-        defaultAppWidget(context, appWidgetIds);
-        final Intent updateIntent = new Intent(MusicService.APP_WIDGET_UPDATE);
-        updateIntent.putExtra(MusicService.EXTRA_APP_WIDGET_NAME, NAME);
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
-        updateIntent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-        context.sendBroadcast(updateIntent);
-    }
-
-    /**
      * Initialize given widgets to default state, where we launch Music on
      * default click and hide actions if service not running.
      */
-    private void defaultAppWidget(final Context context, final int[] appWidgetIds) {
+    protected void defaultAppWidget(final Context context, final int[] appWidgetIds) {
         final RemoteViews appWidgetView = new RemoteViews(context.getPackageName(), R.layout.app_widget_classic);
 
         appWidgetView.setViewVisibility(R.id.media_titles, View.INVISIBLE);
@@ -68,38 +51,6 @@ public class AppWidgetClassic extends BaseAppWidget {
 
         linkButtons(context, appWidgetView);
         pushUpdate(context, appWidgetIds, appWidgetView);
-    }
-
-    private void pushUpdate(final Context context, final int[] appWidgetIds, final RemoteViews views) {
-        final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        if (appWidgetIds != null) {
-            appWidgetManager.updateAppWidget(appWidgetIds, views);
-        } else {
-            appWidgetManager.updateAppWidget(new ComponentName(context, getClass()), views);
-        }
-    }
-
-    /**
-     * Check against {@link AppWidgetManager} if there are any instances of this
-     * widget.
-     */
-    private boolean hasInstances(final Context context) {
-        final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        final int[] mAppWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context,
-                getClass()));
-        return mAppWidgetIds.length > 0;
-    }
-
-    /**
-     * Handle a change notification coming over from
-     * {@link MusicService}
-     */
-    public void notifyChange(final MusicService service, final String what) {
-        if (hasInstances(service)) {
-            if (MusicService.META_CHANGED.equals(what) || MusicService.PLAY_STATE_CHANGED.equals(what)) {
-                performUpdate(service, null);
-            }
-        }
     }
 
     /**
@@ -124,14 +75,14 @@ public class AppWidgetClassic extends BaseAppWidget {
         int playPauseRes = isPlaying ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp;
         appWidgetView.setImageViewBitmap(R.id.button_toggle_play_pause, createBitmap(Util.getTintedVectorDrawable(service, playPauseRes, MaterialValueHelper.getSecondaryTextColor(service, false)), 1f));
 
-        // set prev/next button drawables
+        // Set prev/next button drawables
         appWidgetView.setImageViewBitmap(R.id.button_next, createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_next_white_24dp, MaterialValueHelper.getSecondaryTextColor(service, false)), 1f));
         appWidgetView.setImageViewBitmap(R.id.button_prev, createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_previous_white_24dp, MaterialValueHelper.getSecondaryTextColor(service, false)), 1f));
 
         // Link actions buttons to intents
         linkButtons(service, appWidgetView);
 
-        // load the album cover async and push the update on completion
+        // Load the album cover async and push the update on completion
         final Context appContext = service.getApplicationContext();
         final int widgetImageSize = service.getResources().getDimensionPixelSize(R.dimen.app_widget_classic_image_size);
         service.runOnUiThread(new Runnable() {
@@ -168,8 +119,6 @@ public class AppWidgetClassic extends BaseAppWidget {
             }
         });
     }
-
-    private Target<Bitmap> target; // for cancellation
 
     /**
      * Link up various button actions using {@link PendingIntent}.

@@ -40,6 +40,7 @@ public final class PreferenceUtil {
     public static final String ALBUM_COLORED_FOOTERS = "album_colored_footers";
     public static final String SONG_COLORED_FOOTERS = "song_colored_footers";
     public static final String ARTIST_COLORED_FOOTERS = "artist_colored_footers";
+    public static final String ALBUM_ARTIST_COLORED_FOOTERS = "album_artist_colored_footers";
 
     public static final String FORCE_SQUARE_ALBUM_COVER = "force_square_album_art";
 
@@ -51,7 +52,7 @@ public final class PreferenceUtil {
     public static final String AUDIO_DUCKING = "audio_ducking";
     public static final String GAPLESS_PLAYBACK = "gapless_playback";
 
-    public static final String LAST_ADDED_CUTOFF_TIMESTAMP = "last_added_cutoff_timestamp";
+    public static final String LAST_ADDED_CUTOFF = "last_added_interval";
 
     public static final String ALBUM_ART_ON_LOCKSCREEN = "album_art_on_lockscreen";
     public static final String BLURRED_ALBUM_ART = "blurred_album_art";
@@ -67,6 +68,8 @@ public final class PreferenceUtil {
     public static final String AUTO_DOWNLOAD_IMAGES_POLICY = "auto_download_images_policy";
 
     public static final String START_DIRECTORY = "start_directory";
+
+    public static final String SYNCHRONIZED_LYRICS_SHOW = "synchronized_lyrics_show";
 
     private static PreferenceUtil sInstance;
 
@@ -218,15 +221,34 @@ public final class PreferenceUtil {
         return mPreferences.getString(SONG_SORT_ORDER, SortOrder.SongSortOrder.SONG_A_Z);
     }
 
-    public long getLastAddedCutOffTimestamp() {
-        return mPreferences.getLong(LAST_ADDED_CUTOFF_TIMESTAMP, 0L);
-    }
+    public long getLastAddedCutoff() {
+        final CalendarUtil calendarUtil = new CalendarUtil();
+        long interval;
 
-    @SuppressLint("CommitPrefEdits")
-    public void setLastAddedCutoffTimestamp(final long timestamp) {
-        final SharedPreferences.Editor editor = mPreferences.edit();
-        editor.putLong(LAST_ADDED_CUTOFF_TIMESTAMP, timestamp);
-        editor.commit();
+        switch (mPreferences.getString(LAST_ADDED_CUTOFF, "")) {
+            case "today":
+                interval = calendarUtil.getElapsedToday();
+                break;
+
+            case "this_week":
+                interval = calendarUtil.getElapsedWeek();
+                break;
+
+            case "past_three_months":
+                interval = calendarUtil.getElapsedMonths(3);
+                break;
+
+            case "this_year":
+                interval = calendarUtil.getElapsedYear();
+                break;
+
+            case "this_month":
+            default:
+                interval = calendarUtil.getElapsedMonth();
+                break;
+        }
+
+        return (System.currentTimeMillis() - interval) / 1000;
     }
 
     public int getLastSleepTimerValue() {
@@ -319,6 +341,16 @@ public final class PreferenceUtil {
         return mPreferences.getBoolean(ALBUM_COLORED_FOOTERS, true);
     }
 
+    public void setAlbumArtistColoredFooters(final boolean value) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean(ALBUM_ARTIST_COLORED_FOOTERS, value);
+        editor.apply();
+    }
+
+    public final boolean albumArtistColoredFooters() {
+        return mPreferences.getBoolean(ALBUM_ARTIST_COLORED_FOOTERS, true);
+    }
+
     public void setSongColoredFooters(final boolean value) {
         final SharedPreferences.Editor editor = mPreferences.edit();
         editor.putBoolean(SONG_COLORED_FOOTERS, value);
@@ -369,5 +401,9 @@ public final class PreferenceUtil {
         final SharedPreferences.Editor editor = mPreferences.edit();
         editor.putString(START_DIRECTORY, file.getPath());
         editor.apply();
+    }
+
+    public final boolean synchronizedLyricsShow() {
+        return mPreferences.getBoolean(SYNCHRONIZED_LYRICS_SHOW, true);
     }
 }

@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <android.support.v7.app.MediaRouteButton
+        android:id="@+id/media_route_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:mediaRouteTypes="user"
+        android:visibility="gone" />
+
     <android.support.design.internal.ScrimInsetsFrameLayout
         android:id="@+id/drawer_content_container"
         android:layout_width="match_parent"

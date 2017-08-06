@@ -3,8 +3,11 @@ package com.kabouzeid.gramophone.ui.fragments.player;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.kabouzeid.gramophone.R;
 import com.kabouzeid.gramophone.dialogs.AddToPlaylistDialog;
 import com.kabouzeid.gramophone.dialogs.CreatePlaylistDialog;
@@ -39,6 +42,14 @@ public abstract class AbsPlayerFragment extends AbsMusicServiceFragment implemen
     public void onDetach() {
         super.onDetach();
         callbacks = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        CastButtonFactory.setUpMediaRouteButton(getActivity().getApplicationContext(),
+                menu,
+                R.id.media_route_menu_item);
+        super.onCreateOptionsMenu(menu,inflater);
     }
 
     @Override

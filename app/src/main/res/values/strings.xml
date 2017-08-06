@@ -301,4 +301,7 @@
     <string name="app_shortcut_last_added_long">@string/last_added</string>
     <string name="app_shortcut_last_added_short">@string/last_added</string>
     <string name="playlist_is_empty">Playlist is empty</string>
+    <!-- The Google Cast Application ID-->
+    <string name="app_id">58102F00</string>
+    <string name="cast_song">Cast Song</string>
 </resources>

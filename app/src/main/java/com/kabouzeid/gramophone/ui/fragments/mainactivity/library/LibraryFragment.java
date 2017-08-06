@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.afollestad.materialcab.MaterialCab;
+import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.kabouzeid.appthemehelper.ThemeStore;
 import com.kabouzeid.appthemehelper.common.ATHToolbarActivity;
 import com.kabouzeid.appthemehelper.util.TabLayoutUtil;
@@ -155,6 +156,10 @@ public class LibraryFragment extends AbsMainActivityFragment implements CabHolde
         super.onCreateOptionsMenu(menu, inflater);
         if (pager == null) return;
         inflater.inflate(R.menu.menu_main, menu);
+        //For Google Cast Button
+        CastButtonFactory.setUpMediaRouteButton(getActivity().getApplicationContext(),
+                menu,
+                R.id.media_route_menu_item);
         if (isPlaylistPage()) {
             menu.add(0, R.id.action_new_playlist, 0, R.string.new_playlist_title);
         }

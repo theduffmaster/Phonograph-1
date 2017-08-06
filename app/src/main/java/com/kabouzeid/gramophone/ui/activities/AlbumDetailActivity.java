@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.MediaRouteButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +28,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
 import com.kabouzeid.appthemehelper.util.ColorUtil;
 import com.kabouzeid.appthemehelper.util.MaterialValueHelper;
 import com.kabouzeid.gramophone.R;
@@ -55,9 +58,8 @@ import com.kabouzeid.gramophone.util.NavigationUtil;
 import com.kabouzeid.gramophone.util.PhonographColorUtil;
 import com.kabouzeid.gramophone.util.Util;
 
-import java.util.Locale;
-
 import java.util.ArrayList;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -103,6 +105,10 @@ public class AlbumDetailActivity extends AbsSlidingMusicPanelActivity implements
     private MaterialDialog wikiDialog;
     private LastFMRestClient lastFMRestClient;
 
+    //For Cast
+    public CastContext castContext;
+    public MediaRouteButton mediaRouteButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,8 +120,16 @@ public class AlbumDetailActivity extends AbsSlidingMusicPanelActivity implements
         lastFMRestClient = new LastFMRestClient(this);
 
         setUpObservableListViewParams();
-        setUpToolBar();
         setUpViews();
+
+        mediaRouteButton = (MediaRouteButton) findViewById(R.id.media_route_button);
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), mediaRouteButton);
+
+        castContext = CastContext.getSharedInstance(this);
+
+        setUpToolBar();
+
+
 
         getSupportLoaderManager().initLoader(LOADER_ID, getIntent().getExtras(), this);
     }
@@ -254,6 +268,10 @@ public class AlbumDetailActivity extends AbsSlidingMusicPanelActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_album_detail, menu);
+        //For Google Cast Button
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(),
+                menu,
+                R.id.media_route_menu_item);
         return true;
     }
 

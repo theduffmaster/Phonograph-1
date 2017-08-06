@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.MediaRouteButton;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +27,8 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
@@ -93,6 +96,10 @@ public class CardPlayerFragment extends AbsPlayerFragment implements PlayerAlbum
 
     private Impl impl;
 
+    //For Cast
+    public CastContext castContext;
+    public MediaRouteButton mediaRouteButton;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (Util.isLandscape(getResources())) {
@@ -103,6 +110,12 @@ public class CardPlayerFragment extends AbsPlayerFragment implements PlayerAlbum
 
         View view = inflater.inflate(R.layout.fragment_card_player, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        //Initiate Cast Media Route Button
+        mediaRouteButton = (MediaRouteButton) view.findViewById(R.id.media_route_button);
+        CastButtonFactory.setUpMediaRouteButton(getActivity().getApplicationContext(), mediaRouteButton);
+
+        castContext = CastContext.getSharedInstance(getActivity());
         return view;
     }
 
@@ -222,6 +235,10 @@ public class CardPlayerFragment extends AbsPlayerFragment implements PlayerAlbum
 
     private void setUpPlayerToolbar() {
         toolbar.inflateMenu(R.menu.menu_player);
+        //Initiate Cast Media Route Button
+        CastButtonFactory.setUpMediaRouteButton(getActivity().getApplicationContext(),
+                toolbar.getMenu(),
+                R.id.media_route_menu_item);
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

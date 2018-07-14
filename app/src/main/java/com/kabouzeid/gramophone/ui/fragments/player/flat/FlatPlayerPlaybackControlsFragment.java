@@ -67,6 +67,8 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
 
     private AnimatorSet musicControllerAnimationSet;
 
+    private boolean hidden = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,13 +150,10 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
         playPauseButton.setImageDrawable(playPauseDrawable);
         updatePlayPauseColor();
         playPauseButton.setOnClickListener(new PlayPauseButtonOnClickHandler());
-        playPauseButton.post(new Runnable() {
-            @Override
-            public void run() {
-                if (playPauseButton != null) {
-                    playPauseButton.setPivotX(playPauseButton.getWidth() / 2);
-                    playPauseButton.setPivotY(playPauseButton.getHeight() / 2);
-                }
+        playPauseButton.post(() -> {
+            if (playPauseButton != null) {
+                playPauseButton.setPivotX(playPauseButton.getWidth() / 2);
+                playPauseButton.setPivotY(playPauseButton.getHeight() / 2);
             }
         });
     }
@@ -177,18 +176,8 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
 
     private void setUpPrevNext() {
         updatePrevNextColor();
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicPlayerRemote.playNextSong();
-            }
-        });
-        prevButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicPlayerRemote.back();
-            }
-        });
+        nextButton.setOnClickListener(v -> MusicPlayerRemote.playNextSong());
+        prevButton.setOnClickListener(v -> MusicPlayerRemote.back());
     }
 
     private void updateProgressTextColor() {
@@ -207,12 +196,7 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
     }
 
     private void setUpShuffleButton() {
-        shuffleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicPlayerRemote.toggleShuffleMode();
-            }
-        });
+        shuffleButton.setOnClickListener(v -> MusicPlayerRemote.toggleShuffleMode());
     }
 
     private void updateShuffleState() {
@@ -227,12 +211,7 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
     }
 
     private void setUpRepeatButton() {
-        repeatButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicPlayerRemote.cycleRepeatMode();
-            }
-        });
+        repeatButton.setOnClickListener(v -> MusicPlayerRemote.cycleRepeatMode());
     }
 
     private void updateRepeatState() {
@@ -253,25 +232,28 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
     }
 
     public void show() {
-        if (musicControllerAnimationSet == null) {
-            TimeInterpolator interpolator = new FastOutSlowInInterpolator();
-            final int duration = 300;
+        if (hidden) {
+            if (musicControllerAnimationSet == null) {
+                TimeInterpolator interpolator = new FastOutSlowInInterpolator();
+                final int duration = 300;
 
-            LinkedList<Animator> animators = new LinkedList<>();
+                LinkedList<Animator> animators = new LinkedList<>();
 
-            addAnimation(animators, playPauseButton, interpolator, duration, 0);
-            addAnimation(animators, nextButton, interpolator, duration, 100);
-            addAnimation(animators, prevButton, interpolator, duration, 100);
-            addAnimation(animators, shuffleButton, interpolator, duration, 200);
-            addAnimation(animators, repeatButton, interpolator, duration, 200);
+                addAnimation(animators, playPauseButton, interpolator, duration, 0);
+                addAnimation(animators, nextButton, interpolator, duration, 100);
+                addAnimation(animators, prevButton, interpolator, duration, 100);
+                addAnimation(animators, shuffleButton, interpolator, duration, 200);
+                addAnimation(animators, repeatButton, interpolator, duration, 200);
 
-
-            musicControllerAnimationSet = new AnimatorSet();
-            musicControllerAnimationSet.playTogether(animators);
-        } else {
-            musicControllerAnimationSet.cancel();
+                musicControllerAnimationSet = new AnimatorSet();
+                musicControllerAnimationSet.playTogether(animators);
+            } else {
+                musicControllerAnimationSet.cancel();
+            }
+            musicControllerAnimationSet.start();
         }
-        musicControllerAnimationSet.start();
+
+        hidden = false;
     }
 
     public void hide() {
@@ -283,6 +265,8 @@ public class FlatPlayerPlaybackControlsFragment extends AbsMusicServiceFragment 
         prepareForAnimation(prevButton);
         prepareForAnimation(shuffleButton);
         prepareForAnimation(repeatButton);
+
+        hidden = true;
     }
 
     private static void addAnimation(Collection<Animator> animators, View view, TimeInterpolator interpolator, int duration, int delay) {

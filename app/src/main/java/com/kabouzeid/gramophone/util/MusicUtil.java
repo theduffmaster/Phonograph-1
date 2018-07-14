@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,13 +24,20 @@ import com.kabouzeid.gramophone.helper.MusicPlayerRemote;
 import com.kabouzeid.gramophone.loader.PlaylistLoader;
 import com.kabouzeid.gramophone.loader.SongLoader;
 import com.kabouzeid.gramophone.model.Artist;
+import com.kabouzeid.gramophone.model.Genre;
 import com.kabouzeid.gramophone.model.Playlist;
 import com.kabouzeid.gramophone.model.Song;
+import com.kabouzeid.gramophone.model.lyrics.AbsSynchronizedLyrics;
+
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Karim Abou Zeid (kabouzeid)
@@ -69,11 +77,20 @@ public class MusicUtil {
     }
 
     @NonNull
-    public static Intent createShareSongFileIntent(@NonNull final Song song) {
-        return new Intent()
-                .setAction(Intent.ACTION_SEND)
-                .putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + song.data))
-                .setType("audio/*");
+    public static Intent createShareSongFileIntent(@NonNull final Song song, Context context) {
+        try {
+
+            return new Intent()
+                    .setAction(Intent.ACTION_SEND)
+                    .putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName(), new File(song.data)))
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    .setType("audio/*");
+        } catch (IllegalArgumentException e) {
+            // TODO the path is most likely not like /storage/emulated/0/... but something like /storage/28C7-75B0/...
+            e.printStackTrace();
+            Toast.makeText(context, "Could not share this file, I'm aware of the issue.", Toast.LENGTH_SHORT).show();
+            return new Intent();
+        }
     }
 
     public static void setRingtone(@NonNull final Context context, final int id) {
@@ -117,6 +134,44 @@ public class MusicUtil {
         String albumString = albumCount == 1 ? context.getResources().getString(R.string.album) : context.getResources().getString(R.string.albums);
         String songString = songCount == 1 ? context.getResources().getString(R.string.song) : context.getResources().getString(R.string.songs);
         return albumCount + " " + albumString + " • " + songCount + " " + songString;
+    }
+
+    @NonNull
+    public static String getGenreInfoString(@NonNull final Context context, @NonNull final Genre genre) {
+        int songCount = genre.songCount;
+        String songString = songCount == 1 ? context.getResources().getString(R.string.song) : context.getResources().getString(R.string.songs);
+        return songCount + " " + songString;
+    }
+
+    @NonNull
+    public static String getPlaylistInfoString(@NonNull final Context context, @NonNull List<Song> songs) {
+        final long duration = getTotalDuration(context, songs);
+        return MusicUtil.getSongCountString(context, songs.size()) + " • " + MusicUtil.getReadableDurationString(duration);
+    }
+
+    @NonNull
+    public static String getSongCountString(@NonNull final Context context, int songCount) {
+        final String songString = songCount == 1 ? context.getResources().getString(R.string.song) : context.getResources().getString(R.string.songs);
+        return songCount + " " + songString;
+    }
+
+    @NonNull
+    public static String getAlbumCountString(@NonNull final Context context, int albumCount) {
+        final String albumString = albumCount == 1 ? context.getResources().getString(R.string.album) : context.getResources().getString(R.string.albums);
+        return albumCount + " " + albumString;
+    }
+
+    @NonNull
+    public static String getYearString(int year) {
+        return year > 0 ? String.valueOf(year) : "-";
+    }
+
+    public static long getTotalDuration(@NonNull final Context context, @NonNull List<Song> songs) {
+        long duration = 0;
+        for (int i = 0; i < songs.size(); i++) {
+            duration += songs.get(i).duration;
+        }
+        return duration;
     }
 
     public static String getReadableDurationString(long songDurationMillis) {
@@ -265,6 +320,7 @@ public class MusicUtil {
 
     public static boolean isArtistNameUnknown(@Nullable String artistName) {
         if (TextUtils.isEmpty(artistName)) return false;
+        if (artistName.equals(Artist.UNKNOWN_ARTIST_DISPLAY_NAME)) return true;
         artistName = artistName.trim().toLowerCase();
         return artistName.equals("unknown") || artistName.equals("<unknown>");
     }
@@ -282,6 +338,7 @@ public class MusicUtil {
         return String.valueOf(musicMediaTitle.charAt(0)).toUpperCase();
     }
 
+<<<<<<< HEAD
     public static int indexOfSongInList(List<Song> songs, int songId) {
         for (int i = 0; i < songs.size(); i++) {
             if (songs.get(i).id == songId) {
@@ -289,5 +346,57 @@ public class MusicUtil {
             }
         }
         return -1;
+=======
+    @Nullable
+    public static String getLyrics(Song song) {
+        String lyrics = null;
+
+        File file = new File(song.data);
+
+        try {
+            lyrics = AudioFileIO.read(file).getTagOrCreateDefault().getFirst(FieldKey.LYRICS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (lyrics == null || lyrics.trim().isEmpty() || !AbsSynchronizedLyrics.isSynchronized(lyrics)) {
+            File dir = file.getAbsoluteFile().getParentFile();
+
+            if (dir != null && dir.exists() && dir.isDirectory()) {
+                String format = ".*%s.*\\.(lrc|txt)";
+                String filename = Pattern.quote(FileUtil.stripExtension(file.getName()));
+                String songtitle = Pattern.quote(song.title);
+
+                final ArrayList<Pattern> patterns = new ArrayList<>();
+                patterns.add(Pattern.compile(String.format(format, filename), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+                patterns.add(Pattern.compile(String.format(format, songtitle), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+
+                File[] files = dir.listFiles(f -> {
+                    for (Pattern pattern : patterns) {
+                        if (pattern.matcher(f.getName()).matches()) return true;
+                    }
+                    return false;
+                });
+
+                if (files != null && files.length > 0) {
+                    for (File f : files) {
+                        try {
+                            String newLyrics = FileUtil.read(f);
+                            if (newLyrics != null && !newLyrics.trim().isEmpty()) {
+                                if (AbsSynchronizedLyrics.isSynchronized(newLyrics)) {
+                                    return newLyrics;
+                                }
+                                lyrics = newLyrics;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        return lyrics;
+>>>>>>> kabouzeid/master
     }
 }

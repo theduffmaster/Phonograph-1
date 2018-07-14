@@ -42,6 +42,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.kabouzeid.gramophone.R;
 import com.kabouzeid.gramophone.appwidgets.AppWidgetBig;
+import com.kabouzeid.gramophone.appwidgets.AppWidgetCard;
 import com.kabouzeid.gramophone.appwidgets.AppWidgetClassic;
 import com.kabouzeid.gramophone.appwidgets.AppWidgetSmall;
 import com.kabouzeid.gramophone.auto.AutoMediaIDHelper;
@@ -82,7 +83,7 @@ import java.util.Random;
 public class MusicService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener, Playback.PlaybackCallbacks {
     public static final String TAG = MusicService.class.getSimpleName();
 
-    public static final String PHONOGRAPH_PACKAGE_NAME = "com.kabouzeid.gramophone" + ".temp_sticky_intent_fix"; // TODO remove ".temp_sticky_intent_fix" in a future update.
+    public static final String PHONOGRAPH_PACKAGE_NAME = "com.kabouzeid.gramophone";
     public static final String MUSIC_PACKAGE_NAME = "com.android.music";
 
     public static final String ACTION_TOGGLE_PAUSE = PHONOGRAPH_PACKAGE_NAME + ".togglepause";
@@ -142,6 +143,7 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
     private AppWidgetBig appWidgetBig = AppWidgetBig.getInstance();
     private AppWidgetClassic appWidgetClassic = AppWidgetClassic.getInstance();
     private AppWidgetSmall appWidgetSmall = AppWidgetSmall.getInstance();
+    private AppWidgetCard appWidgetCard = AppWidgetCard.getInstance();
 
     private Playback playback;
     private ArrayList<Song> playingQueue = new ArrayList<>();
@@ -181,7 +183,6 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
     };
     private ContentObserver mediaStoreObserver;
     private boolean notHandledMetaChangedForCurrentTrack;
-    private boolean isServiceBound;
 
     private Handler uiThreadHandler;
 
@@ -313,12 +314,13 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
                         break;
                     case ACTION_STOP:
                     case ACTION_QUIT:
-                        return quit();
+                        quit();
+                        break;
                 }
             }
         }
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -340,22 +342,7 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
 
     @Override
     public IBinder onBind(Intent intent) {
-        isServiceBound = true;
         return musicBind;
-    }
-
-    @Override
-    public void onRebind(Intent intent) {
-        isServiceBound = true;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        isServiceBound = false;
-        if (!isPlaying()) {
-            stopSelf();
-        }
-        return true;
     }
 
     private static final class QueueSaveHandler extends Handler {
@@ -436,18 +423,13 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
         queuesRestored = true;
     }
 
-    private int quit() {
+    private void quit() {
         pause();
         playingNotification.stop();
 
-        if (isServiceBound) {
-            return START_STICKY;
-        } else {
-            closeAudioEffectSession();
-            getAudioManager().abandonAudioFocus(audioFocusListener);
-            stopSelf();
-            return START_NOT_STICKY;
-        }
+        closeAudioEffectSession();
+        getAudioManager().abandonAudioFocus(audioFocusListener);
+        stopSelf();
     }
 
     private void releaseResources() {
@@ -906,7 +888,7 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
     }
 
     public void back(boolean force) {
-        if (getSongProgressMillis() > 2000) {
+        if (getSongProgressMillis() > 5000) {
             seek(0);
         } else {
             playPreviousSong(force);
@@ -1057,6 +1039,7 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
         appWidgetBig.notifyChange(this, what);
         appWidgetClassic.notifyChange(this, what);
         appWidgetSmall.notifyChange(this, what);
+        appWidgetCard.notifyChange(this, what);
     }
 
     private static final long MEDIA_SESSION_ACTIONS = PlaybackStateCompat.ACTION_PLAY
@@ -1135,6 +1118,10 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
                 updateMediaSessionMetaData();
                 break;
             case PreferenceUtil.COLORED_NOTIFICATION:
+                updateNotification();
+                break;
+            case PreferenceUtil.CLASSIC_NOTIFICATION:
+                initNotification();
                 updateNotification();
                 break;
         }
@@ -1418,6 +1405,9 @@ public class MusicService extends Service implements SharedPreferences.OnSharedP
             } else if (AppWidgetBig.NAME.equals(command)) {
                 final int[] ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 appWidgetBig.performUpdate(MusicService.this, ids);
+            } else if (AppWidgetCard.NAME.equals(command)) {
+                final int[] ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+                appWidgetCard.performUpdate(MusicService.this, ids);
             }
         }
     };

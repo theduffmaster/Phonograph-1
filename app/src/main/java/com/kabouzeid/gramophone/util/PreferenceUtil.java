@@ -7,16 +7,22 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.StyleRes;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.kabouzeid.gramophone.R;
 import com.kabouzeid.gramophone.helper.SortOrder;
+import com.kabouzeid.gramophone.model.CategoryInfo;
 import com.kabouzeid.gramophone.ui.fragments.mainactivity.folders.FoldersFragment;
 import com.kabouzeid.gramophone.ui.fragments.player.NowPlayingScreen;
 
 import java.io.File;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 public final class PreferenceUtil {
     public static final String GENERAL_THEME = "general_theme";
-    public static final String DEFAULT_START_PAGE = "default_start_page";
+    public static final String REMEMBER_LAST_TAB = "remember_last_tab";
     public static final String LAST_PAGE = "last_start_page";
     public static final String LAST_MUSIC_CHOOSER = "last_music_chooser";
     public static final String NOW_PLAYING_SCREEN_ID = "now_playing_screen_id";
@@ -27,6 +33,7 @@ public final class PreferenceUtil {
     public static final String ALBUM_SORT_ORDER = "album_sort_order";
     public static final String ALBUM_SONG_SORT_ORDER = "album_song_sort_order";
     public static final String SONG_SORT_ORDER = "song_sort_order";
+    public static final String GENRE_SORT_ORDER = "genre_sort_order";
 
     public static final String ALBUM_GRID_SIZE = "album_grid_size";
     public static final String ALBUM_GRID_SIZE_LAND = "album_grid_size_land";
@@ -69,6 +76,14 @@ public final class PreferenceUtil {
 
     public static final String START_DIRECTORY = "start_directory";
 
+    public static final String SYNCHRONIZED_LYRICS_SHOW = "synchronized_lyrics_show";
+
+    public static final String INITIALIZED_BLACKLIST = "initialized_blacklist";
+
+    public static final String LIBRARY_CATEGORIES = "library_categories";
+
+    private static final String REMEMBER_SHUFFLE = "remember_shuffle";
+
     private static PreferenceUtil sInstance;
 
     private final SharedPreferences mPreferences;
@@ -92,8 +107,15 @@ public final class PreferenceUtil {
         mPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
     }
 
+    @StyleRes
     public int getGeneralTheme() {
-        return getThemeResFromPrefValue(mPreferences.getString(GENERAL_THEME, ""));
+        return getThemeResFromPrefValue(mPreferences.getString(GENERAL_THEME, "light"));
+    }
+
+    public void setGeneralTheme(String theme) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString(GENERAL_THEME, theme);
+        editor.commit();
     }
 
     @StyleRes
@@ -109,8 +131,8 @@ public final class PreferenceUtil {
         }
     }
 
-    public final int getDefaultStartPage() {
-        return Integer.parseInt(mPreferences.getString(DEFAULT_START_PAGE, "-1"));
+    public final boolean rememberLastTab() {
+        return mPreferences.getBoolean(REMEMBER_LAST_TAB, true);
     }
 
     public void setLastPage(final int value) {
@@ -156,6 +178,12 @@ public final class PreferenceUtil {
         return mPreferences.getBoolean(CLASSIC_NOTIFICATION, false);
     }
 
+    public void setColoredNotification(final boolean value) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean(COLORED_NOTIFICATION, value);
+        editor.apply();
+    }
+
     public void setClassicNotification(final boolean value) {
         final SharedPreferences.Editor editor = mPreferences.edit();
         editor.putBoolean(CLASSIC_NOTIFICATION, value);
@@ -196,27 +224,46 @@ public final class PreferenceUtil {
         return mPreferences.getString(ARTIST_SORT_ORDER, SortOrder.ArtistSortOrder.ARTIST_A_Z);
     }
 
+    public void setArtistSortOrder(final String sortOrder) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString(ARTIST_SORT_ORDER, sortOrder);
+        editor.commit();
+    }
+
     public final String getArtistSongSortOrder() {
-        return mPreferences.getString(ARTIST_SONG_SORT_ORDER,
-                SortOrder.ArtistSongSortOrder.SONG_A_Z);
+        return mPreferences.getString(ARTIST_SONG_SORT_ORDER, SortOrder.ArtistSongSortOrder.SONG_A_Z);
     }
 
     public final String getArtistAlbumSortOrder() {
-        return mPreferences.getString(ARTIST_ALBUM_SORT_ORDER,
-                SortOrder.ArtistAlbumSortOrder.ALBUM_YEAR);
+        return mPreferences.getString(ARTIST_ALBUM_SORT_ORDER, SortOrder.ArtistAlbumSortOrder.ALBUM_YEAR);
     }
 
     public final String getAlbumSortOrder() {
         return mPreferences.getString(ALBUM_SORT_ORDER, SortOrder.AlbumSortOrder.ALBUM_A_Z);
     }
 
+    public void setAlbumSortOrder(final String sortOrder) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString(ALBUM_SORT_ORDER, sortOrder);
+        editor.commit();
+    }
+
     public final String getAlbumSongSortOrder() {
-        return mPreferences.getString(ALBUM_SONG_SORT_ORDER,
-                SortOrder.AlbumSongSortOrder.SONG_TRACK_LIST);
+        return mPreferences.getString(ALBUM_SONG_SORT_ORDER, SortOrder.AlbumSongSortOrder.SONG_TRACK_LIST);
     }
 
     public final String getSongSortOrder() {
         return mPreferences.getString(SONG_SORT_ORDER, SortOrder.SongSortOrder.SONG_A_Z);
+    }
+
+    public void setSongSortOrder(final String sortOrder) {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString(SONG_SORT_ORDER, sortOrder);
+        editor.commit();
+    }
+
+    public final String getGenreSortOrder() {
+        return mPreferences.getString(GENRE_SORT_ORDER, SortOrder.GenreSortOrder.GENRE_A_Z);
     }
 
     public long getLastAddedCutoff() {
@@ -387,6 +434,10 @@ public final class PreferenceUtil {
         return mPreferences.getBoolean(INTRO_SHOWN, false);
     }
 
+    public final boolean rememberShuffle() {
+        return mPreferences.getBoolean(REMEMBER_SHUFFLE, true);
+    }
+
     public final String autoDownloadImagesPolicy() {
         return mPreferences.getString(AUTO_DOWNLOAD_IMAGES_POLICY, "only_wifi");
     }
@@ -397,7 +448,58 @@ public final class PreferenceUtil {
 
     public void setStartDirectory(File file) {
         final SharedPreferences.Editor editor = mPreferences.edit();
-        editor.putString(START_DIRECTORY, file.getPath());
+        editor.putString(START_DIRECTORY, FileUtil.safeGetCanonicalPath(file));
         editor.apply();
+    }
+
+    public final boolean synchronizedLyricsShow() {
+        return mPreferences.getBoolean(SYNCHRONIZED_LYRICS_SHOW, true);
+    }
+
+    public void setInitializedBlacklist() {
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putBoolean(INITIALIZED_BLACKLIST, true);
+        editor.apply();
+    }
+
+    public final boolean initializedBlacklist() {
+        return mPreferences.getBoolean(INITIALIZED_BLACKLIST, false);
+    }
+
+    public void setLibraryCategoryInfos(ArrayList<CategoryInfo> categories) {
+        Gson gson = new Gson();
+        Type collectionType = new TypeToken<ArrayList<CategoryInfo>>() {
+        }.getType();
+
+        final SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString(LIBRARY_CATEGORIES, gson.toJson(categories, collectionType));
+        editor.apply();
+    }
+
+    public ArrayList<CategoryInfo> getLibraryCategoryInfos() {
+        String data = mPreferences.getString(LIBRARY_CATEGORIES, null);
+        if (data != null) {
+            Gson gson = new Gson();
+            Type collectionType = new TypeToken<ArrayList<CategoryInfo>>() {
+            }.getType();
+
+            try {
+                return gson.fromJson(data, collectionType);
+            } catch (JsonSyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return getDefaultLibraryCategoryInfos();
+    }
+
+    public ArrayList<CategoryInfo> getDefaultLibraryCategoryInfos() {
+        ArrayList<CategoryInfo> defaultCategoryInfos = new ArrayList<>(5);
+        defaultCategoryInfos.add(new CategoryInfo(CategoryInfo.Category.SONGS, true));
+        defaultCategoryInfos.add(new CategoryInfo(CategoryInfo.Category.ALBUMS, true));
+        defaultCategoryInfos.add(new CategoryInfo(CategoryInfo.Category.ARTISTS, true));
+        defaultCategoryInfos.add(new CategoryInfo(CategoryInfo.Category.GENRES, true));
+        defaultCategoryInfos.add(new CategoryInfo(CategoryInfo.Category.PLAYLISTS, true));
+        return defaultCategoryInfos;
     }
 }

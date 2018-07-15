@@ -62,10 +62,6 @@ public final class AppShortcutIconGenerator {
             // Squash the two drawables together
             LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{backgroundDrawable, vectorDrawable});
 
-<<<<<<< HEAD
-        // Return as an Icon
-        return Icon.createWithBitmap(Util.createBitmap(layerDrawable));
-=======
             // Return as an Icon
             return IconCompat.createWithBitmap(drawableToBitmap(layerDrawable));
         }
@@ -77,6 +73,5 @@ public final class AppShortcutIconGenerator {
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
         return bitmap;
->>>>>>> kabouzeid/master
     }
 }

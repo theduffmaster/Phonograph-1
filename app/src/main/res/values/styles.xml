@@ -37,7 +37,6 @@
         <item name="android:transitionName" tools:ignore="NewApi">toolbar</item>
     </style>
 
-<<<<<<< HEAD
     <style name="Theme.Transparent" parent="android:Theme">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
@@ -55,6 +54,4 @@
         <item name="colorAccent">#fffe3b7e</item>
     </style>
 
-=======
->>>>>>> kabouzeid/master
 </resources>

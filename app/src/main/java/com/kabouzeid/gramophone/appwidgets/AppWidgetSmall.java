@@ -49,17 +49,10 @@ public class AppWidgetSmall extends BaseAppWidget {
         final RemoteViews appWidgetView = new RemoteViews(context.getPackageName(), R.layout.app_widget_small);
 
         appWidgetView.setViewVisibility(R.id.media_titles, View.INVISIBLE);
-<<<<<<< HEAD
-        appWidgetView.setViewVisibility(R.id.image, View.INVISIBLE);
-        appWidgetView.setImageViewBitmap(R.id.button_next, Util.createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_next_white_24dp, MaterialValueHelper.getSecondaryTextColor(context, false))));
-        appWidgetView.setImageViewBitmap(R.id.button_prev, Util.createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_previous_white_24dp, MaterialValueHelper.getSecondaryTextColor(context, false))));
-        appWidgetView.setImageViewBitmap(R.id.button_toggle_play_pause, Util.createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_play_arrow_white_24dp, MaterialValueHelper.getSecondaryTextColor(context, false))));
-=======
         appWidgetView.setImageViewResource(R.id.image, R.drawable.default_album_art);
         appWidgetView.setImageViewBitmap(R.id.button_next, createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_next_white_24dp, MaterialValueHelper.getSecondaryTextColor(context, true)), 1f));
         appWidgetView.setImageViewBitmap(R.id.button_prev, createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_previous_white_24dp, MaterialValueHelper.getSecondaryTextColor(context, true)), 1f));
         appWidgetView.setImageViewBitmap(R.id.button_toggle_play_pause, createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_play_arrow_white_24dp, MaterialValueHelper.getSecondaryTextColor(context, true)), 1f));
->>>>>>> kabouzeid/master
 
         linkButtons(context, appWidgetView);
         pushUpdate(context, appWidgetIds, appWidgetView);
@@ -89,17 +82,6 @@ public class AppWidgetSmall extends BaseAppWidget {
             appWidgetView.setTextViewText(R.id.text, song.artistName);
         }
 
-<<<<<<< HEAD
-        // Set correct drawable for pause state
-        int playPauseRes = isPlaying ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp;
-        appWidgetView.setImageViewBitmap(R.id.button_toggle_play_pause, Util.createBitmap(Util.getTintedVectorDrawable(service, playPauseRes, MaterialValueHelper.getSecondaryTextColor(service, false))));
-
-        // Set prev/next button drawables
-        appWidgetView.setImageViewBitmap(R.id.button_next, Util.createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_next_white_24dp, MaterialValueHelper.getSecondaryTextColor(service, false))));
-        appWidgetView.setImageViewBitmap(R.id.button_prev, Util.createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_previous_white_24dp, MaterialValueHelper.getSecondaryTextColor(service, false))));
-
-=======
->>>>>>> kabouzeid/master
         // Link actions buttons to intents
         linkButtons(service, appWidgetView);
 

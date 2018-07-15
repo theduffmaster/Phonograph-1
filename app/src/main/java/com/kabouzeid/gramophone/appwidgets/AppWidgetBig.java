@@ -46,17 +46,10 @@ public class AppWidgetBig extends BaseAppWidget {
         final RemoteViews appWidgetView = new RemoteViews(context.getPackageName(), R.layout.app_widget_big);
 
         appWidgetView.setViewVisibility(R.id.media_titles, View.INVISIBLE);
-<<<<<<< HEAD
-        appWidgetView.setViewVisibility(R.id.image, View.INVISIBLE);
-        appWidgetView.setImageViewBitmap(R.id.button_next, Util.createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_next_white_24dp, MaterialValueHelper.getPrimaryTextColor(context, false))));
-        appWidgetView.setImageViewBitmap(R.id.button_prev, Util.createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_previous_white_24dp, MaterialValueHelper.getPrimaryTextColor(context, false))));
-        appWidgetView.setImageViewBitmap(R.id.button_toggle_play_pause, Util.createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_play_arrow_white_24dp, MaterialValueHelper.getPrimaryTextColor(context, false))));
-=======
         appWidgetView.setImageViewResource(R.id.image, R.drawable.default_album_art);
         appWidgetView.setImageViewBitmap(R.id.button_next, createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_next_white_24dp, MaterialValueHelper.getPrimaryTextColor(context, false)), 1f));
         appWidgetView.setImageViewBitmap(R.id.button_prev, createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_skip_previous_white_24dp, MaterialValueHelper.getPrimaryTextColor(context, false)), 1f));
         appWidgetView.setImageViewBitmap(R.id.button_toggle_play_pause, createBitmap(Util.getTintedVectorDrawable(context, R.drawable.ic_play_arrow_white_24dp, MaterialValueHelper.getPrimaryTextColor(context, false)), 1f));
->>>>>>> kabouzeid/master
 
         linkButtons(context, appWidgetView);
         pushUpdate(context, appWidgetIds, appWidgetView);

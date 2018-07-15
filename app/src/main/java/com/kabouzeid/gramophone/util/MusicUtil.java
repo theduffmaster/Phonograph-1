@@ -33,7 +33,6 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -338,7 +337,7 @@ public class MusicUtil {
         return String.valueOf(musicMediaTitle.charAt(0)).toUpperCase();
     }
 
-<<<<<<< HEAD
+
     public static int indexOfSongInList(List<Song> songs, int songId) {
         for (int i = 0; i < songs.size(); i++) {
             if (songs.get(i).id == songId) {
@@ -346,7 +345,8 @@ public class MusicUtil {
             }
         }
         return -1;
-=======
+    }
+
     @Nullable
     public static String getLyrics(Song song) {
         String lyrics = null;
@@ -397,6 +397,5 @@ public class MusicUtil {
         }
 
         return lyrics;
->>>>>>> kabouzeid/master
     }
 }

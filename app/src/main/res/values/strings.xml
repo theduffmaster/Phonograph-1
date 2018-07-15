@@ -271,17 +271,11 @@
     <string name="copied_device_info_to_clipboard">Copied device info to clipboard.</string>
     <string name="your_account_data_is_only_used_for_authentication">Your account data is only used for authentication.</string>
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">You will be forwarded to the issue tracker website.</string>
-<<<<<<< HEAD
 
-    <!-- App Shortcuts -->
-    <string name="app_shortcut_shuffle_all_long">@string/action_shuffle_all</string>
-=======
->>>>>>> kabouzeid/master
     <string name="app_shortcut_shuffle_all_short">Shuffle</string>
     <string name="app_shortcut_top_tracks_short">Top tracks</string>
     <string name="app_shortcut_last_added_short">Last added</string>
     <string name="playlist_is_empty">Playlist is empty</string>
-<<<<<<< HEAD
 
     <!-- Android Auto -->
     <string name="albums_label">Albums</string>
@@ -293,7 +287,6 @@
     <string name="action_cycle_repeat">Cycle repeat mode</string>
     <string name="action_toggle_shuffle">Toggle shuffle mode</string>
     <string name="action_toggle_favorite">Toggle favorite</string>
-=======
     <string name="playing_notification_description">The playing notification provides actions for play/pause etc.</string>
     <string name="playing_notification_name">Playing notification</string>
     <string name="only_the_first_5_colors_available">Only the first 5 colors are available in the free version.</string>
@@ -327,5 +320,4 @@
     <string name="sort_order_artist">Artist</string>
     <string name="sort_order_album">Album</string>
     <string name="sort_order_year">Year</string>
->>>>>>> kabouzeid/master
 </resources>

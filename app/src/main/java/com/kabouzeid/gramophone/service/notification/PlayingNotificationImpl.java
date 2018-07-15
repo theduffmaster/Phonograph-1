@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
@@ -30,6 +29,8 @@ import com.kabouzeid.gramophone.ui.activities.MainActivity;
 import com.kabouzeid.gramophone.util.PhonographColorUtil;
 import com.kabouzeid.gramophone.util.PreferenceUtil;
 import com.kabouzeid.gramophone.util.Util;
+
+import static com.kabouzeid.gramophone.util.Util.createBitmap;
 
 public class PlayingNotificationImpl extends PlayingNotification {
 
@@ -133,16 +134,9 @@ public class PlayingNotificationImpl extends PlayingNotification {
                                 int primary = MaterialValueHelper.getPrimaryTextColor(service, dark);
                                 int secondary = MaterialValueHelper.getSecondaryTextColor(service, dark);
 
-<<<<<<< HEAD
-                                Bitmap prev = Util.createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_previous_white_24dp, primary), 1.5f);
-                                Bitmap next = Util.createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_next_white_24dp, primary), 1.5f);
-                                Bitmap playPause = Util.createBitmap(Util.getTintedVectorDrawable(service, isPlaying ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp, primary), 1.5f);
-                                Bitmap close = Util.createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_close_white_24dp, secondary));
-=======
                                 Bitmap prev = createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_previous_white_24dp, primary), 1.5f);
                                 Bitmap next = createBitmap(Util.getTintedVectorDrawable(service, R.drawable.ic_skip_next_white_24dp, primary), 1.5f);
                                 Bitmap playPause = createBitmap(Util.getTintedVectorDrawable(service, isPlaying ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp, primary), 1.5f);
->>>>>>> kabouzeid/master
 
                                 notificationLayout.setTextColor(R.id.title, primary);
                                 notificationLayout.setTextColor(R.id.text, secondary);

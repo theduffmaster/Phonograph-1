@@ -141,16 +141,11 @@
                 android:name="com.lge.support.SPLIT_WINDOW"
                 android:value="true" />
         <meta-data
-<<<<<<< HEAD
                 android:name="com.crashlytics.ApiKey"
                 android:value="b23725bd3d266aa65c5a3dd1816b2f801524a189"/>
         <meta-data
-                android:name="com.kabouzeid.gramophone.glide.PhonographGlideModule"
-                android:value="GlideModule"/>
-=======
             android:name="com.kabouzeid.gramophone.glide.PhonographGlideModule"
             android:value="GlideModule" />
->>>>>>> kabouzeid/master
         <meta-data
             android:name="com.bumptech.glide.integration.okhttp3.OkHttpGlideModule"
             android:value="GlideModule" />
@@ -210,8 +205,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_card_info" />
         </receiver>
-
-<<<<<<< HEAD
         <!-- Android Auto -->
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -230,18 +223,6 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
-=======
-        <activity android:name=".ui.activities.PurchaseActivity"></activity>
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="${applicationId}"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
-        </provider>
->>>>>>> kabouzeid/master
     </application>
 
 </manifest>
